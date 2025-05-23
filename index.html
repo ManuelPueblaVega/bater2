@@ -45,9 +45,26 @@
       transform: translate(-50%, -50%);
       font-size: 1.5em;
     }
+    .volver-button {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: #007BFF;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 1rem;
+      z-index: 1000;
+    }
+    .volver-button:hover {
+      background-color: #0056b3;
+    }
   </style>
 </head>
 <body>
+  <a href="https://manuelpueblavega.github.io/appInstru/" class="volver-button">&larr; Volver</a>
   <h1 style="margin: 10px 0;">Percusión</h1>
   <div class="pad-container">
     <div class="pad" data-sound="kick"><div class="pad-label">Kick</div></div>
@@ -106,3 +123,4 @@
   </footer>
 </body>
 </html>
+
