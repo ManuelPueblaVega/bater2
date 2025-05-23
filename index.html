@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>App de Percusión</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: sans-serif;
+      color: white;
+      touch-action: none;
+    }
+    .pad-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 30px;
+      width: 90%;
+      max-width: 600px;
+    }
+    .pad {
+      background: #333;
+      padding-top: 100%;
+      position: relative;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.1);
+      transition: background 0.1s;
+    }
+    .pad.active {
+      background: #ff4081;
+    }
+    .pad-label {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h1>Percusión</h1>
+  <div class="pad-container">
+    <div class="pad" data-sound="kick"><div class="pad-label">Kick</div></div>
+    <div class="pad" data-sound="snare"><div class="pad-label">Snare</div></div>
+    <div class="pad" data-sound="hihat"><div class="pad-label">Hi-Hat</div></div>
+    <div class="pad" data-sound="tom1"><div class="pad-label">Tom 1</div></div>
+    <div class="pad" data-sound="tom2"><div class="pad-label">Tom 2</div></div>
+    <div class="pad" data-sound="clap"><div class="pad-label">Clap</div></div>
+  </div>
+
+  <script>
+    const context = new (window.AudioContext || window.webkitAudioContext)();
+    const pads = document.querySelectorAll('.pad');
+
+    const bufferMap = {};
+
+    async function loadSample(name) {
+      const response = await fetch(`sounds/${name}.wav`);
+      const arrayBuffer = await response.arrayBuffer();
+      return context.decodeAudioData(arrayBuffer);
+    }
+
+    async function initSounds() {
+      const sounds = ['kick', 'snare', 'hihat', 'tom1', 'tom2', 'clap'];
+      for (const sound of sounds) {
+        bufferMap[sound] = await loadSample(sound);
+      }
+    }
+
+    function playSound(name) {
+      const source = context.createBufferSource();
+      source.buffer = bufferMap[name];
+      source.connect(context.destination);
+      source.start();
+    }
+
+    pads.forEach(pad => {
+      pad.addEventListener('touchstart', async (e) => {
+        if (context.state === 'suspended') await context.resume();
+        const name = pad.dataset.sound;
+        pad.classList.add('active');
+        pad.style.transform = 'scale(0.95)';
+        if (navigator.vibrate) navigator.vibrate(50);
+        playSound(name);
+      });
+      pad.addEventListener('touchend', () => {
+        pad.classList.remove('active');
+        pad.style.transform = 'scale(1)';
+      });
+    });
+
+    initSounds();
+  </script>
+</body>
+</html>
